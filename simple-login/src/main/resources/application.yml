@@ -1,0 +1,14 @@
+spring:
+    application:
+        name: simple-login
+    output:
+        ansi:
+            enabled: always
+
+logging:
+  level:
+    '[com.slope.recall]': debug
+    
+
+server:
+    port: 8086
