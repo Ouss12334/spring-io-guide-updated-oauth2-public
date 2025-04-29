@@ -1,0 +1,26 @@
+spring:
+    application:
+        name: oauth2-login
+    output:
+        ansi:
+            enabled: always
+    security:
+        oauth2:
+            client:
+                registration:
+                    # generated with https://github.com/settings/developers
+                    github:
+                        clientId: <yourgitclient>
+                        clientSecret: <yourgitsecret>
+                    # generated with https://console.cloud.google.com/auth/clients
+                    google:
+                        clientId: <yourgoogleclient>
+                        clientSecret: <yourgooglesecret>
+
+logging:
+  level:
+    '[com.slope.recall]': debug
+
+server:
+    port: 8087
+

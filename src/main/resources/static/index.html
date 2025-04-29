@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>OAuth2 App</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.5/js.cookie.min.js"></script>
+</head>
+<body>
+	<h2>Welcome OAuth2</h2>
+    <br/>
+	<div class="col-md-2 unauthenticated">
+        With GitHub: 
+        <a href="/oauth2/authorization/github">click here</a>
+    </div>
+    <div class="col-md-2 unauthenticated">
+        With Google: 
+        <a href="/oauth2/authorization/google">click here</a>
+    </div>
+    <div class="col-md-4 authenticated" style="display:none">
+        Logged in as: <span id="span-user"></span>
+        <button onclick="logout()" class="col-md-4 btn btn-primary">Logout</button>
+    </div>
+
+    <script>
+        var getUser = function() {
+            $.get("/user", (data) => {
+                if (data.name) {
+                    $("#span-user").html(data.name);
+                    $(".unauthenticated").hide();
+                    $(".authenticated").show()
+                } else {
+                    $(".unauthenticated").show();
+                    $(".authenticated").hide()
+                }})
+            }
+
+        getUser(); // call on load
+
+        var logout = function() {
+            $.get("/csrf", (data) => {
+                var csrfHeader = data.headerName
+                var csrfValue = data.token
+                // console.log(csrfHeader, csrfValue, data)
+                $.ajax({
+                    url: "/logout",
+                    type: 'POST',
+                    data: {
+                        '_csrf': csrfValue
+                    },
+                    success: (s) => {
+                        // console.log("success", s)
+                        $("#span-user").html('');
+                        $(".unauthenticated").hide();
+                        $(".authenticated").show()
+                        getUser() // refresh dom
+                    },
+                    error: (e) => {
+                        // console.log("error", e)
+                        if (e.status == 400 && e.responseJSON.access == 'denied') {
+                            console.log("denied access on logout")
+                            window.location.href = "/access-denied.html"
+                        }
+                    }
+                })
+            })
+            // $.post("/logout", () => {
+            //     $("#span-user").html('');
+            //     $(".unauthenticated").hide();
+            //     $(".authenticated").show()
+            //     getUser() // refresh dom
+            // })
+            return true;
+        }
+    </script>
+</body>
+</html>
